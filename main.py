@@ -6,56 +6,69 @@ from time import sleep
 from collections import deque
 
 # User settings
-import settings
+# import settings
 
-def mispelled(c):
+def check_if_misspelled(c):
 	text = c.body.lower()
 	tokens = text.split()
+
+	# heuristically filter the words
 	letters = ("b", "d", "h", "i", "l", "n", "o", "r", "t", "v", "w")
 	words_to_spellcheck = [word for word in tokens if word.startswith(letters) and len(word) > 2 and len(word) < 12]
 
 	for item in words_to_spellcheck:
 		if check_if_named_weapon(item):
-			return True
+			correct_spelling(c, check_if_named_weapon(item), respond=True)
 
 def check_if_named_weapon(word):
-	if not correction(word):
-		# if word is spelled correctly
+	corrected_word = correction(word) # correction() comes from spell.py
+	correction_and_descrip = []
+	if (corrected_word != word):
+		# the candidate word is a slight misspelling
+		if corrected_word in weapons: # check if the misspelled word matches any of the weapons
+			return correction_and_descrip.extend([word, corrected_word, weapons[corrected_word]])
+		else:
+			return False
+	else:
+		# the word is spelled correctly
 		return False
-	else
-		# if word is a slight mispelling
-		if condition: # check if the mispelled word matches any of the weapons
-			return True
 
-def correct_spelling(c, verbose=True, respond=False):
-	# find corrected word
+def correct_spelling(c, correction_and_descrip, respond=False):
+	# get misspelled word
 	# tell user that it has been corrected
 	# reply with description
-	correction = "Returning the corrected word and description"
-
-	if verbose:
-		print c.body.encode('UTF-8')
-		print "\n\n~~~~"
-		print fixed.encode('UTF-8')
 
 	if respond: 
-		head = "Hi, I'm testing this bot!"
-		c.reply(head + correction)
+		head = "Hi, it looks like you misspelled " + correction_and_descrip[0] + ".\n"
+		correction = "The correct spelling is " + correction_and_descrip[1] + ".\n"
+		description = "A little bit of detail about that weapon: \n\n >" + correction_and_descrip[2]
+		c.reply(head + correction + description)
 
+def unit_tests():
+	assert type(weapons) is dict
+	assert 'brightroar' in weapons
+	assert 'blackfire' not in weapons
+	assert len(weapons) == 15
+	# assert user_agent == ("ASOIAF Named Weapons Spell Checker Bot v0.1")
+	# assert REDDIT_USERNAME != ''
+	# assert REDDIT_PASS != ''
+	return 'Unit tests passed'
 
 if __name__ == '__main__':
 	cache = deque(maxlen=200)
-	r = praw.Reddit(user_agent = user_agent)
-	r.login(REDDIT_USERNAME, REDDIT_PASS)
+	# r = praw.Reddit(user_agent = user_agent)
+	# r.login(REDDIT_USERNAME, REDDIT_PASS)
 
 	with open('named_weapons.json') as file:
-		weapons, mispellings = json.load(file)["named weapons"], json.load(file)["mispellings"]
+		content = json.load(file)
+		weapons, misspellings = content["named weapons"], content["misspellings"]
 
-	while True:
-		for c in praw.helpers.comment_stream(r, "asoiaf"):
-			if c.id in cache:
-				continue
-			cache.append(c.id)
-			if mispelled(c):
-				correct_spelling(c, respond=True)
-		sleep(30)
+	print unit_tests()
+
+	# while True:
+	# 	for c in praw.helpers.comment_stream(r, "asoiaf"):
+	# 		if c.id in cache:
+	# 			continue
+	# 		cache.append(c.id)
+	# 		check_if_misspelled(c):
+	# 	sleep(30)
