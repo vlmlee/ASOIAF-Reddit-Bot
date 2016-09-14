@@ -1,12 +1,12 @@
 import unittest
-from main import mispelled, correct_spelling, check_if_named_weapon
+import main
 
 class RedditBotTestCase(unittest.TestCase):
 	"""Tests for ASOIAF Named Weapons Spell Checker Bot"""
 	def test_letter_filter(self):
-		self.assertFalse(mispelled({body: 'anchor'}))
-		self.assertFalse(mispelled({body: 'carrot'}))
-		self.assertFalse(mispelled({body: 'zoo'}))
+		self.assertFalse(mispelled())
+		self.assertFalse(mispelled())
+		self.assertFalse(mispelled())
 
 	def test_length_filter(self):
 		self.assertFalse(mispelled('to'))

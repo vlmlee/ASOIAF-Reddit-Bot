@@ -1,5 +1,8 @@
 import os
 
-user_agent = ("ASOIAF Named Weapons Spell Checker Bot v0.2")
-REDDIT_USERNAME = os.environ['REDDIT_USERNAME']
-REDDIT_PASS = os.environ['REDDIT_PASS']
+user_agent = ("ASOIAF Named Weapons Spell Checker v0.3")
+app_key = os.environ['APP_KEY']
+app_secret = os.environ['APP_SECRET']
+access_token = os.environ['ACCESS_TOKEN']
+refresh_token = os.environ['REFRESH_TOKEN']
+scopes = ['identity', 'read', 'submit']
