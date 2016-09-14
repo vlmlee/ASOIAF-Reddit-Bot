@@ -18,13 +18,13 @@ import settings # Edit settings.py to set up your own bots.
 
 def check_if_named_weapon(c):
 	text = c.body.lower()
-	tokens = text.split()
+	tokens = str(text).split()
 	words = filter_to_only_candidate_words(tokens)
 	for word in words:
 		check_if_misspelled(c, word)
 
 def check_if_misspelled(c, word):
-	for key, value in common_misspellings:
+	for key, value in common_misspellings.items():
 		# Does a quick check to see if the first letters of the word and key are the same
 		if word[0] == key[0]:
 			# If the word is in the array of common misspellings, we can skip the spell checker
@@ -47,8 +47,8 @@ def reply_with_correct_spelling(c, word, key):
 	# 3. Reply with description
 
  	head = "Hi, I'm a speller checker! \n\n"
-	correction = "Did you mean *" + key + "* instead of *" + word + "*?\n"
-	description = "A little bit of detail about that weapon: \n\n >" + weapons[key]
+	correction = "Did you mean *" + key + "* instead of *" + word + "*? \n\n"
+	description = "A little bit of detail about that weapon: \n\n\n >" + weapons[key]
 	c.reply(head + correction + description)
 
 ###############
@@ -77,7 +77,7 @@ def unit_tests():
 	assert settings.user_agent == ("ASOIAF Named Weapons Spell Checker v0.3")
 	assert settings.app_key != ''
 	assert settings.app_secret != ''
-	assert filter_words(["one", "two", 1, "again", "wooly"]) == ["one", "two", "wooly"]
+	assert filter_to_only_candidate_words(["one", "two", 1, "again", "wooly"]) == ["one", "two", "wooly"]
 	return
 
 ############
@@ -100,12 +100,10 @@ if __name__ == '__main__':
 
 	while True:
 		try:
-			oauth_helper.refresh()
-			for c in praw.helpers.comment_stream(r, "ASOIAF_Named_Weapons", limit=300):
+			for c in reddit_client.get_comments("ASOIAF_Named_Weapons", limit=300):
 				if c.id in cache:
 					continue
 				cache.append(c.id)
-				# check_if_misspelled(c)
-				handle_rate_limit(correct_spelling, c, respond=True)
+				handle_rate_limit(check_if_named_weapon, c)
 		except praw.errors.OAuthInvalidToken:
 			oauth_helper.refresh()
