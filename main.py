@@ -46,10 +46,10 @@ def reply_with_correct_spelling(c, word, key):
 	# 2. Tell user that it has been corrected
 	# 3. Reply with description
 
- 	head = "Hi, I'm a speller checker! \n\n"
-	correction = "Did you mean *" + key + "* instead of *" + word + "*? \n\n"
+	correction = "Did you mean *" + key + "* instead of *" + word + "*? \n\n\n"
 	description = "A little bit of detail about that weapon: \n\n\n >" + weapons[key]
-	c.reply(head + correction + description)
+	footer = "\n\n*****\n\n^(I'm a speller checker bot!)"
+	c.reply(correction + description + footer)
 
 ###############
 ### HELPERS ###
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
 	while True:
 		try:
-			for c in reddit_client.get_comments("ASOIAF_Named_Weapons", limit=300):
+			for c in reddit_client.get_comments("ASOIAF_Named_Weapons", limit=100):
 				if c.id in cache:
 					continue
 				cache.append(c.id)
