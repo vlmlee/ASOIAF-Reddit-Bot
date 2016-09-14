@@ -2,7 +2,7 @@ import praw
 import os
 from prawoauth2 import PrawOAuth2Server   
      
-user_agent = "ASOIAF Named Weapons Spell Checker v0.2"
+user_agent = "ASOIAF Named Weapons Spell Checker v0.0.3"
 reddit_client = praw.Reddit(user_agent=user_agent)
 app_key = os.environ['APP_KEY']
 app_secret = os.environ['APP_SECRET']

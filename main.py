@@ -17,6 +17,7 @@ import settings # Edit settings.py to set up your own bots.
 ###################
 
 def check_if_named_weapon(c):
+	oauth_helper.refresh()
 	text = c.body.lower()
 	tokens = str(text).split()
 	words = filter_to_only_candidate_words(tokens)
@@ -48,7 +49,7 @@ def reply_with_correct_spelling(c, word, key):
 
 	correction = "Did you mean *" + key + "* instead of *" + word + "*? \n\n\n"
 	description = "A little bit of detail about that weapon: \n\n\n >" + weapons[key]
-	footer = "\n\n*****\n\n^(I'm a speller checker bot!)"
+	footer = "\n\n*****\n\n ^(/r/ASOIAF_Named_Weapons: I'm a speller checker bot!)"
 	c.reply(correction + description + footer)
 
 ###############
@@ -105,5 +106,6 @@ if __name__ == '__main__':
 					continue
 				cache.append(c.id)
 				handle_rate_limit(check_if_named_weapon, c)
+			sleep(30)
 		except praw.errors.OAuthInvalidToken:
 			oauth_helper.refresh()
