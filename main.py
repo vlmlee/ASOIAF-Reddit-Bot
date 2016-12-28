@@ -21,25 +21,44 @@ def check_if_named_weapon(c):
 	text = c.body.lower()
 	tokens = str(text).split()
 	words = filter_to_only_candidate_words(tokens)
-	for word in words:
-		check_if_misspelled(c, word)
+	for index, word in enumerate(words):
+		if (word == 'dark'):
+			compound_word = word + " " + words[index + 1]
+			check_if_misspelled(c, compound_word)
+		elif (word == 'lady'):
+			compound_word = word + " " + words[index + 1]
+			check_if_misspelled(c, compound_word)
+		elif (word == 'orphan'):
+			compound_word = word + " " + words[index + 1]
+			check_if_misspelled(c, compound_word)
+		elif (word == 'red'):
+			compound_word = word + " " + words[index + 1]
+			check_if_misspelled(c, compound_word)
+		elif ((word == 'widows') or (word == "widow's")):
+			compound_word = word + " " + words[index + 1]
+			check_if_misspelled(c, compound_word)
+		else:
+			check_if_misspelled(c, word)
 
 def check_if_misspelled(c, word):
 	for key, value in common_misspellings.items():
-		# Does a quick check to see if the first letters of the word and key are the same
-		if word[0] == key[0]:
-			# If the word is in the array of common misspellings, we can skip the spell checker
-			# and automatically reply with the correction and description.
-			if word in value:
-				reply_with_correct_spelling(c, word, key) # key allows us to grab the description
-			else:
-				# If the word isn't in the array, we do a spell check. If the spell check comes
-				# back with the same word, the word was not misspelled. If it is a different word,
-				# we check and see if it is in the common misspellings array. If the misspelling
-				# is too obscure, we ignore it.
-				correct_word = spell.correction(word)
-				if (correct_word != word) and (correct_word in value):
-					reply_with_correct_spelling(c, word, key)
+		# Does a quick check to see if the word and key are not the same
+		if (word != key):
+			# slight heuristic here: if neither first letter, last letter, middle letter of the
+			# candidate words are not the same as any of the keys, then we skip them
+			if ((word[0] == key[0]) or (word[len(word)/2] == key[len(word)/2]) or (word[-1] == key[-1])):
+				# If the word is in the array of common misspellings, we can skip the spell checker
+				# and automatically reply with the correction and description.
+				if word in value:
+					reply_with_correct_spelling(c, word, key) # key allows us to grab the description
+				else:
+					# If the word isn't in the array, we do a spell check. If the spell check comes
+					# back with the same word, the word was not misspelled. If it is a different word,
+					# we check and see if it is in the common misspellings array. If the misspelling
+					# is too obscure, we ignore it.
+					corrected_word = spell.correction(word)
+					if ((corrected_word != word) and (corrected_word in value)):
+						reply_with_correct_spelling(c, word, key)
 
 def reply_with_correct_spelling(c, word, key):
 	# Steps to take:
@@ -58,7 +77,7 @@ def reply_with_correct_spelling(c, word, key):
 
 def filter_to_only_candidate_words(tokens):
 	# heuristically filter the words
-	letters = ("b", "d", "h", "i", "l", "n", "o", "r", "t", "v", "w")
+	letters = ("b", "d", "f", "h", "i", "l", "m", "n", "o", "r", "s", "t", "v", "w")
 	return [word for word in tokens if type(word) == str and word.startswith(letters) and len(word) > 2 and len(word) < 12]
 
 def handle_rate_limit(func, *args, **kwargs):
@@ -75,7 +94,7 @@ def unit_tests():
 	assert 'brightroar' in weapons
 	assert 'blackfire' not in weapons
 	assert len(weapons) == 15
-	assert settings.user_agent == ("ASOIAF Named Weapons Spell Checker v0.3")
+	assert settings.user_agent == ("ASOIAF Named Weapons Spell Checker v0.0.3")
 	assert settings.app_key != ''
 	assert settings.app_secret != ''
 	assert filter_to_only_candidate_words(["one", "two", 1, "again", "wooly"]) == ["one", "two", "wooly"]
@@ -96,8 +115,10 @@ if __name__ == '__main__':
                                   scopes=settings.scopes)
 
 	with open('docs/named_weapons.json') as file:
-		content = json.load(file)
-		weapons, common_misspellings = content["named weapons"], content["common misspellings"]
+		weapons = json.load(file)
+
+	with open('docs/common_misspellings') as file:
+		common_misspellings = json.load(file)
 
 	while True:
 		try:
@@ -109,3 +130,5 @@ if __name__ == '__main__':
 			sleep(30)
 		except praw.errors.OAuthInvalidToken:
 			oauth_helper.refresh()
+
+	# unit_tests()
